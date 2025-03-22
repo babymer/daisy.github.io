@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TP53评分系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 全局样式 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(135deg, #81D4FA 0%, #B3E5FC 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 容器样式 */
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            width: 800px;
+            max-width: 90%;
+        }
+
+        /* 标题样式 */
+        h1 {
+            color: #0069c0;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            letter-spacing: 1px;
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 15px;
+        }
+
+        th {
+            background-color: #0091EA;
+            color: white;
+            text-align: left;
+            padding: 12px 15px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+
+        td {
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            vertical-align: middle;
+        }
+
+        /* 输入框样式 */
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: border-color 0.3s ease;
+            outline: none;
+        }
+
+        input[type="number"]:focus {
+            border-color: #0091EA;
+            box-shadow: 0 0 5px rgba(0, 145, 234, 0.3);
+        }
+
+        /* 按钮样式 */
+        button {
+            display: block;
+            margin: 30px auto 0;
+            padding: 12px 25px;
+            background-color: #0091EA;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            background-color: #0069c0;
+        }
+
+        button i {
+            margin-right: 8px;
+        }
+
+        /* 结果显示样式 */
+        #result {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            color: #333;
+        }
+
+        /* 交互提示样式 */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip.tooltiptext {
+            visibility: hidden;
+            width: 150px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -75px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover.tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>TP53评分系统</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Predictors</th>
+                    <th>Scoring Criteria</th>
+                    <th>Record</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- cT stage部分 -->
+                <tr>
+                    <td>cT stage</td>
+                    <td class="tooltip">
+                        T1-2<br>score: 0<br>T3<br>score: 1<br>T4<br>score: 3
+                        <span class="tooltiptext">根据肿瘤浸润深度划分阶段</span>
+                    </td>
+                    <td><input type="number" id="cT_stage" min="0" max="3"></td>
+                </tr>
+                <!-- CT<sub>40keV_AP</sub>_HU部分 -->
+                <tr>
+                    <td>CT<sub>40keV_AP</sub>_HU</td>
+                    <td class="tooltip">
+                        &lt;170<br>score: 0<br>170 to &lt;246<br>score: 2<br>246 to &lt;321<br>score: 3<br>&ge;321<br>score: 4
+                        <span class="tooltiptext">40keV能量下动脉期的CT值相关评分</span>
+                    </td>
+                    <td><input type="number" id="CT_40keV_AP_HU" min="0" max="4"></td>
+                </tr>
+                <!-- CT<sub>40keV_VP</sub>_HU部分 -->
+                <tr>
+                    <td>CT<sub>40keV_VP</sub>_HU</td>
+                    <td class="tooltip">
+                        &lt;193<br>score: 0<br>193 to &lt;265<br>score: 2<br>265 to &lt;336<br>score: 4<br>&ge;336<br>score: 5
+                        <span class="tooltiptext">40keV能量下静脉期的CT值相关评分</span>
+                    </td>
+                    <td><input type="number" id="CT_40keV_VP_HU" min="0" max="5"></td>
+                </tr>
+                <!-- NID<sub>VP</sub>部分 -->
+                <tr>
+                    <td>NID<sub>VP</sub></td>
+                    <td class="tooltip">
+                        &lt;0.42<br>score: 0<br>0.42 to &lt;0.56<br>score: 6<br>0.56 to &lt;0.71<br>score: 9<br>&ge;0.71<br>score: 11
+                        <span class="tooltiptext">静脉期标准化碘密度相关评分</span>
+                    </td>
+                    <td><input type="number" id="NID_VP" min="0" max="11"></td>
+                </tr>
+                <!-- NZ<sub>eff_VP</sub>部分 -->
+                <tr>
+                    <td>NZ<sub>eff_VP</sub></td>
+                    <td class="tooltip">
+                        &lt;0.77<br>score: 0<br>0.77 to &lt;0.85<br>score: 4<br>0.85 to &lt;0.92<br>score: 6<br>&ge;0.92<br>score: 7
+                        <span class="tooltiptext">静脉期标准化有效原子序数相关评分</span>
+                    </td>
+                    <td><input type="number" id="NZ_eff_VP" min="0" max="7"></td>
+                </tr>
+            </tbody>
+        </table>
+        <button onclick="calculateScore()"><i class="fa-solid fa-calculator"></i>计算总分数</button>
+        <div id="result"></div>
+    </div>
+    <script>
+        function calculateScore() {
+            var cTStage = parseInt(document.getElementById('cT_stage').value);
+            var CT40keVAPHU = parseInt(document.getElementById('CT_40keV_AP_HU').value);
+            var CT40keVVPHU = parseInt(document.getElementById('CT_40keV_VP_HU').value);
+            var NIDVP = parseInt(document.getElementById('NID_VP').value);
+            var NZeffVP = parseInt(document.getElementById('NZ_eff_VP').value);
+
+            var totalScore = cTStage + CT40keVAPHU + CT40keVVPHU + NIDVP + NZeffVP;
+            var probability;
+            if (totalScore <= 17) {
+                probability = "<10%";
+            } else if (totalScore < 20) {
+                probability = "10 - 25%";
+            } else if (totalScore < 22) {
+                probability = "25 - 50%";
+            } else if (totalScore < 25) {
+                probability = "50 - 75%";
+            } else if (totalScore < 27) {
+                probability = "75 - 90%";
+            } else {
+                probability = ">90%";
+            }
+
+            document.getElementById('result').innerHTML = "总分数: " + totalScore + "<br>TP53突变概率: " + probability;
+        }
+    </script>
+</body>
+
+</html>
